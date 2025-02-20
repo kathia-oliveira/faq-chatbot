@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FAQ Atitude Azul</title>
+    <script src="https://unpkg.com/vue@3"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 40px; }
+        textarea { width: 80%; padding: 10px; margin-top: 10px; }
+        button { margin-top: 10px; padding: 10px 20px; background: blue; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>FAQ Atitude Azul</h1>
+    <div id="app">
+        <textarea v-model="question" placeholder="Digite sua pergunta..."></textarea>
+        <button @click="askQuestion">Enviar</button>
+        <h2>Resposta:</h2>
+        <p v-if="loading">Carregando...</p>
+        <p v-if="answer">{{ answer }}</p>
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+        createApp({
+            data() {
+                return {
+                    question: '',
+                    answer: '',
+                    loading: false
+                };
+            },
+            methods: {
+                async askQuestion() {
+                    this.loading = true;
+                    this.answer = '';
+                    const response = await fetch('/ask', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ question: this.question })
+                    });
+                    const data = await response.json();
+                    this.answer = data.answer || 'Não encontrei uma resposta.';
+                    this.loading = false;
+                }
+            }
+        }).mount('#app');
+    </script>
+</body>
+</html>
+
